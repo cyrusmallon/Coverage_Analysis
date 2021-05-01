@@ -2,6 +2,7 @@
 #Purpose: To calculate the total number of basepairs sequenced for each scaffold,
 #later this info will be used to normalize the number of mutations per species
 #by the total amount of DNA that was sequenced for that particular species
+#intial date: 1 May 2021
 
 #load libraries
 library(here)

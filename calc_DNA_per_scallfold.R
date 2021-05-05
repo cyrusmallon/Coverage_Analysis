@@ -45,7 +45,39 @@ data_seq_DNA <-
 
 save(data_seq_DNA, file = "data_seq_DNA.RData")
 
+###NEW DF with added columns
+data_cov <-
+df %>%
+  #remove ancestral species
+  filter(., !grepl("*.Ancestral.*",ID)) %>%
+  separate(., ID, into = c("community", "replicate", "Day", "species", "scaffold"), sep = "_") %>%
+  #via the group, different scaffolds and their various levels of coverage are taken into account
+  group_by(community,replicate,Day,species) %>%
+  summarise(n = n(), 
+            #Avg Coverage Across All Scaffolds;thus per genome, accounting for differences in coverage between scaffolds
+            #Avg_Cov is another measure for average number of cells
+            Avg_COV = mean(Average_Cov_Total, na.rm = TRUE), 
+            #Avg_Cells lacks weighing each scaffolds coverage
+            Avg_Cells = sum(Sum_bp_Total)/sum(length_scaffold), 
+            #Total_DNA per species
+            Total_DNA = sum(Sum_bp_Total), 
+            length_genome = sum(length_scaffold)) %>%
+  #print(n = 200) %>%
+  mutate(richness = 
+           ifelse(nchar(community) == 1, "1",
+                  ifelse(nchar(community) == 2, "2",
+                         ifelse(nchar(community) == 3, "3",
+                                ifelse(nchar(community) == 4, "4"))))) %>%
+  mutate(species = sub("-Prokka","",species)) %>%
+  mutate(mut_sp_origin = species) %>%
+  unite("Label",1:3,sep = "_", remove=FALSE) %>%
+  mutate(Label = str_replace(Label, "r", "R")) %>%
+  mutate(replicate = str_replace(replicate, "r", "R")) %>%
+  #filter contaminated samples
+  filter(., !grepl("^ABC_R2.*|^ABC_R3.*|^AB_R1.*|^AB_R3.*|^C_R1.*", Label)) %>%
+  print(n = 100)
 
 
+save(data_cov, file = "data_cov.RData")
 
 

@@ -1,2 +1,2 @@
-# Coverag_Analysis
+# Coverage_Analysis
 Analyzing coverage of sequencing data
